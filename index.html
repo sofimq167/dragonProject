@@ -27,6 +27,7 @@
     <!-- Three.js and loaders from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     
     <script>
         // Track list and gradients
@@ -244,17 +245,15 @@
             }
         });
 
-        // OrbitControls - Note: This requires the OrbitControls to be available globally
-        // For now, we'll create basic mouse controls
-        let mouseX = 0, mouseY = 0;
-        let targetRotationX = 0, targetRotationY = 0;
-
-        document.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-            targetRotationX = mouseY * 0.1;
-            targetRotationY = mouseX * 0.1;
-        });
+        // OrbitControls setup
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.12;
+        controls.minDistance = 0;
+        controls.maxDistance = 12;
+        controls.maxPolarAngle = Math.PI * 0.75;
+        controls.target.set(0, 1, 0);
+        controls.update();
 
         // Lighting
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
@@ -342,11 +341,8 @@
         function animate() {
             requestAnimationFrame(animate);
             
-            // Smooth mouse following
-            if (model) {
-                model.rotation.x += (targetRotationX - model.rotation.x) * 0.02;
-                model.rotation.y += (targetRotationY - model.rotation.y + Math.PI) * 0.02;
-            }
+            // Update controls
+            controls.update();
             
             renderer.render(scene, camera);
         }
